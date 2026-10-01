@@ -249,6 +249,23 @@ Username, see each inbound for details.
 
 Sniffed protocol, see [Protocol Sniff](/configuration/route/sniff/) for details.
 
+#### tls_ech
+
+When `true`, match the presence of the `encrypted_client_hello` extension
+(`0xfe0d`) in a successfully sniffed TCP TLS ClientHello. This includes ECH
+GREASE and does not indicate whether a server can decrypt or accept ECH.
+The connection still matches `protocol: "tls"`. Omitted, `null` or `false` adds no
+condition; `false` does not match the absence of ECH. QUIC is not covered.
+
+Place a TLS `sniff` action before this condition. For example, an optional
+`{"tls_ech": true, "action": "reject"}` rule placed after sniffing and before
+outbound routing rejects these connections without dialing an outbound.
+This does not make sniffing errors fatal: strict policies must separately allow
+only successfully sniffed supported traffic and reject everything else. Do not
+interpret an unmatched ECH condition as proof that the ClientHello was parsed.
+Rejecting ECH GREASE can also reject ordinary TLS clients and requires client
+compatibility testing.
+
 #### client
 
 !!! question "Since sing-box 1.10.0"

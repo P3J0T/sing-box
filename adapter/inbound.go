@@ -65,6 +65,7 @@ type InboundContext struct {
 	Protocol     string
 	Domain       string
 	Client       string
+	TLSECH       bool
 	SniffContext any
 	SnifferNames []string
 	SniffError   error

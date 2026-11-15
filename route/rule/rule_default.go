@@ -95,6 +95,11 @@ func NewDefaultRule(ctx context.Context, logger log.ContextLogger, options optio
 		rule.items = append(rule.items, item)
 		rule.allItems = append(rule.allItems, item)
 	}
+	if options.TLSECH {
+		item := &TLSECHItem{}
+		rule.items = append(rule.items, item)
+		rule.allItems = append(rule.allItems, item)
+	}
 	if len(options.Client) > 0 {
 		item := NewClientItem(options.Client)
 		rule.items = append(rule.items, item)

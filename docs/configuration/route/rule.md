@@ -234,6 +234,17 @@ Username, see each inbound for details.
 
 Sniffed protocol, see [Protocol Sniff](/configuration/route/sniff/) for details.
 
+#### tls_ech
+
+When `true`, match the presence of extension `0xfe0d` in a successfully
+sniffed TCP TLS ClientHello. This includes ECH GREASE: it does not prove
+successful ECH, disclose an inner SNI, bind an original IP to a name, or
+inspect tunneled content. `false`, `null`, and omission add no condition.
+QUIC is not covered. Place a TLS `sniff` action before this matcher and use
+a separate default reject for sniff failures, unsupported traffic, and
+nonmatching traffic; sniff failures alone do not reject connections. Rejecting
+GREASE can affect ordinary clients.
+
 #### client
 
 !!! question "Since sing-box 1.10.0"

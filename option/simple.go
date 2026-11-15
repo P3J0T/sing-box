@@ -35,6 +35,7 @@ type HTTPOutboundOptions struct {
 	Username string `json:"username,omitempty"`
 	Password string `json:"password,omitempty"`
 	OutboundTLSOptionsContainer
-	Path    string               `json:"path,omitempty"`
-	Headers badoption.HTTPHeader `json:"headers,omitempty"`
+	Path                    string               `json:"path,omitempty"`
+	Headers                 badoption.HTTPHeader `json:"headers,omitempty"`
+	SendOriginalDestination bool                 `json:"send_original_destination,omitempty"`
 }

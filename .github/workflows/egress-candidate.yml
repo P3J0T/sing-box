@@ -1,0 +1,67 @@
+name: Maintained egress candidate
+
+on:
+  push:
+    branches: [update/egress-stable, release/egress]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  egress:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Test egress gate pipeline controls
+        shell: bash
+        run: python3 -B release/test_egress_check.py
+      - name: Read declared build inputs
+        id: inputs
+        shell: bash
+        run: |
+          source release/EGRESS_BUILD_INPUTS
+          [[ $GO_VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ && $GOVULNCHECK_VERSION =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || exit 2
+          echo "go=$GO_VERSION" >> "$GITHUB_OUTPUT"
+          echo "scanner=$GOVULNCHECK_VERSION" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: ${{ steps.inputs.outputs.go }}
+          cache: false
+      - name: Install pinned binary scanner
+        shell: bash
+        run: go install golang.org/x/vuln/cmd/govulncheck@${{ steps.inputs.outputs.scanner }}
+      - name: Test, race, build both arches and gate both binaries
+        shell: bash
+        env:
+          GOTOOLCHAIN: local
+          GOVULNDB: https://vuln.go.dev
+        run: bash release/egress-check.sh "$RUNNER_TEMP/egress-candidate"
+      - name: Upload bounded receipts and binaries
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: egress-candidate-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/egress-candidate/provenance.txt
+            ${{ runner.temp }}/egress-candidate/source-manifest.json
+            ${{ runner.temp }}/egress-candidate/source-state-post.txt
+            ${{ runner.temp }}/egress-candidate/scanner-info.txt
+            ${{ runner.temp }}/egress-candidate/input-sha256.txt
+            ${{ runner.temp }}/egress-candidate/module-verification.txt
+            ${{ runner.temp }}/egress-candidate/modules.txt
+            ${{ runner.temp }}/egress-candidate/focused-tests.txt
+            ${{ runner.temp }}/egress-candidate/race-tests.txt
+            ${{ runner.temp }}/egress-candidate/build-amd64.txt
+            ${{ runner.temp }}/egress-candidate/build-arm64.txt
+            ${{ runner.temp }}/egress-candidate/vulnerability-amd64.txt
+            ${{ runner.temp }}/egress-candidate/vulnerability-arm64.txt
+            ${{ runner.temp }}/egress-candidate/SHA256SUMS
+            ${{ runner.temp }}/egress-candidate/sing-box-linux-amd64
+            ${{ runner.temp }}/egress-candidate/sing-box-linux-arm64
+          if-no-files-found: error
+          retention-days: 7

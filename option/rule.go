@@ -143,6 +143,7 @@ type RawDefaultRule struct {
 	Network                  badoption.Listable[string]                                                  `json:"network,omitempty" enum:"tcp,udp,icmp"`
 	AuthUser                 badoption.Listable[string]                                                  `json:"auth_user,omitempty"`
 	Protocol                 badoption.Listable[string]                                                  `json:"protocol,omitempty" enum:"tls,http,quic,dns,stun,bittorrent,dtls,ssh,rdp,ntp"`
+	TLSECH                   bool                                                                        `json:"tls_ech,omitempty"`
 	Client                   badoption.Listable[string]                                                  `json:"client,omitempty"`
 	Domain                   badoption.Listable[string]                                                  `json:"domain,omitempty"`
 	DomainSuffix             badoption.Listable[string]                                                  `json:"domain_suffix,omitempty"`

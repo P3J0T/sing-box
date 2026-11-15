@@ -17,6 +17,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: Test egress gate pipeline controls
+        shell: bash
+        run: python3 -B release/test_egress_check.py
       - name: Read declared build inputs
         id: inputs
         shell: bash
